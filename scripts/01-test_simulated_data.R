@@ -14,10 +14,11 @@
 #### Workspace setup ####
 library(tidyverse)
 
-analysis_data <- read_csv("data/00-simulated_data/simulated_data.csv")
+# Load the simulated dataset
+simulated_data <- read_csv("data/00-simulated_data/simulated_cleaned_data.csv")
 
 # Test if the data was successfully loaded
-if (exists("analysis_data")) {
+if (exists("simulated_data")) {
   message("Test Passed: The dataset was successfully loaded.")
 } else {
   stop("Test Failed: The dataset could not be loaded.")
@@ -26,64 +27,61 @@ if (exists("analysis_data")) {
 
 #### Test data ####
 
-# Check if the dataset has 151 rows
-if (nrow(analysis_data) == 151) {
-  message("Test Passed: The dataset has 151 rows.")
+# Check if the dataset has 500 rows
+if (nrow(simulated_data) == 500) {
+  message("Test Passed: The dataset has 500 rows.")
 } else {
-  stop("Test Failed: The dataset does not have 151 rows.")
+  stop("Test Failed: The dataset does not have 500 rows.")
 }
 
-# Check if the dataset has 3 columns
-if (ncol(analysis_data) == 3) {
-  message("Test Passed: The dataset has 3 columns.")
+# Check if the dataset has 5 columns
+if (ncol(simulated_data) == 5) {
+  message("Test Passed: The dataset has 5 columns.")
 } else {
-  stop("Test Failed: The dataset does not have 3 columns.")
+  stop("Test Failed: The dataset does not have 5 columns.")
 }
 
-# Check if all values in the 'division' column are unique
-if (n_distinct(analysis_data$division) == nrow(analysis_data)) {
-  message("Test Passed: All values in 'division' are unique.")
+# Check if all values in the 'vendor' column are valid vendors
+valid_vendors <- c("NoFrills", "Voila", "Loblaws", "SaveOnFoods", "Metro", "TandT", "Galleria", "Walmart")
+
+if (all(simulated_data$vendor %in% valid_vendors)) {
+  message("Test Passed: The 'vendor' column contains only valid vendors.")
 } else {
-  stop("Test Failed: The 'division' column contains duplicate values.")
-}
-
-# Check if the 'state' column contains only valid Australian state names
-valid_states <- c("New South Wales", "Victoria", "Queensland", "South Australia", 
-                  "Western Australia", "Tasmania", "Northern Territory", 
-                  "Australian Capital Territory")
-
-if (all(analysis_data$state %in% valid_states)) {
-  message("Test Passed: The 'state' column contains only valid Australian state names.")
-} else {
-  stop("Test Failed: The 'state' column contains invalid state names.")
-}
-
-# Check if the 'party' column contains only valid party names
-valid_parties <- c("Labor", "Liberal", "Greens", "National", "Other")
-
-if (all(analysis_data$party %in% valid_parties)) {
-  message("Test Passed: The 'party' column contains only valid party names.")
-} else {
-  stop("Test Failed: The 'party' column contains invalid party names.")
+  stop("Test Failed: The 'vendor' column contains invalid vendors.")
 }
 
 # Check if there are any missing values in the dataset
-if (all(!is.na(analysis_data))) {
+if (all(!is.na(simulated_data))) {
   message("Test Passed: The dataset contains no missing values.")
 } else {
   stop("Test Failed: The dataset contains missing values.")
 }
 
-# Check if there are no empty strings in 'division', 'state', and 'party' columns
-if (all(analysis_data$division != "" & analysis_data$state != "" & analysis_data$party != "")) {
-  message("Test Passed: There are no empty strings in 'division', 'state', or 'party'.")
+# Check if there are no negative values in 'current_price' or 'old_price'
+if (all(simulated_data$current_price >= 0 & simulated_data$old_price >= 0)) {
+  message("Test Passed: The 'current_price' and 'old_price' columns contain no negative values.")
 } else {
-  stop("Test Failed: There are empty strings in one or more columns.")
+  stop("Test Failed: One or more values in 'current_price' or 'old_price' are negative.")
 }
 
-# Check if the 'party' column has at least two unique values
-if (n_distinct(analysis_data$party) >= 2) {
-  message("Test Passed: The 'party' column contains at least two unique values.")
+# Check if all 'old_price' values are greater than or equal to 'current_price'
+if (all(simulated_data$old_price >= simulated_data$current_price)) {
+  message("Test Passed: All 'old_price' values are greater than or equal to 'current_price'.")
 } else {
-  stop("Test Failed: The 'party' column contains less than two unique values.")
+  stop("Test Failed: Some 'old_price' values are less than 'current_price'.")
 }
+
+# Check if the 'month' column contains only valid months (1 to 12)
+if (all(simulated_data$month %in% 1:12)) {
+  message("Test Passed: The 'month' column contains only valid month values.")
+} else {
+  stop("Test Failed: The 'month' column contains invalid month values.")
+}
+
+# Check if the 'vendor' column contains at least two unique vendors
+if (n_distinct(simulated_data$vendor) >= 2) {
+  message("Test Passed: The 'vendor' column contains at least two unique vendors.")
+} else {
+  stop("Test Failed: The 'vendor' column contains less than two unique vendors.")
+}
+
