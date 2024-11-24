@@ -14,8 +14,8 @@ library(janitor)
 library(lubridate)
 
 #### Clean data ####
-raw_data <- read_csv("data/01-raw_data/hammer-4-raw.csv")
-product_data <- read_csv("data/01-raw_data/hammer-4-product.csv")
+raw_data <- read_csv("~/Desktop/hammer-4-raw.csv")
+product_data <- read_csv("~/Desktop/hammer-4-product.csv")
 
 joined_data <- raw_data %>%
   inner_join(product_data, by = c("product_id" = "id")) %>%
@@ -43,6 +43,5 @@ cleaned_data <- joined_data %>%
   tidyr::drop_na()
 
 #### Save data ####
-write_parquet(x = cleaned_data,
-              sink = "data/02-analysis_data/analysis_data.parquet")
+write_csv(x = cleaned_data, file = "data/02-analysis_data/analysis_data.csv")
 
