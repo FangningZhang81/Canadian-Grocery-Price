@@ -22,6 +22,8 @@ library(tidyverse)
 library(ggplot2)
 library(here)
 library(knitr)
+library(rstanarm)
+library(bayesplot)
 
 analysis_data <- read_csv(here::here("data/02-analysis_data/analysis_data.csv"))
 ```
@@ -61,7 +63,7 @@ To transition from real-world sales events to a structured dataset, we began by 
 By  filtering and cleaning the raw data, the dataset reflects the aspects of potato sales that are of interest for this study. This process of measurement transforms abstract sales activities into quantifiable data points that can be used for statistical analysis, providing insights into vendor behavior and price dynamics over time.
 
 ## Cleaning Process
-The dataset used for this analysis comes from a combination of raw sales data and product-specific information, sourced from Project Hammer (https://jacobfilipp.com/hammer/). Project Hammer aims to drive more competition and reduce collusion in the Canadian grocery sector. The dataset, referred to as Canadian Grocery Price Data, includes sales data from eight vendors: Voila, T&T, Loblaws, No Frills, Metro, Galleria, Walmart, and Save-On-Foods. The available dates range from February 28, 2024, to the latest data load.
+The Canadian Grocery Price Data (@citeData) used in this analysis was sourced from the official website and consists of two datasets: raw sales data and product-specific information. Project Hammer aims to drive more competition and reduce collusion in the Canadian grocery sector. The dataset includes sales data from eight vendors: Voila, T&T, Loblaws, No Frills, Metro, Galleria, Walmart, and Save-On-Foods. The available dates range from February 28, 2024, to the latest data load.
 
 Initially, two raw datasets were downloaded from the Project Hammer website. These datasets were merged to create a comprehensive dataset containing all relevant columns, including `nowtime`, `vendor`, `product_id`, `product_name`, `brand`, `units`, `current_price`, `old_price`, `price_per_unit`, and `other`. 
 
@@ -103,7 +105,7 @@ kable(head(analysis_data), caption = NULL)
 
 These steps resulted in a cleaned dataset containing the essential information needed for the analysis of potato sales trends.
 
-## Outcome variables
+## Variables of Interest
 The cleaned dataset contains 685 rows, representing individual products sold, along with vendor information and price details. The summary statistics of the cleaned data indicate that the mean of current price is 2.811, and the mean of old price is 3.785. @fig-vendor and @tbl-analysis-data-overview show that the cleaned dataset only contains five vendors instead of the eight in the raw dataset, and the month is from June to November. This is expected because data collection from February 28 to July 10/11 focused on a smaller set of products by the description of the raw dataset. After July, more products were added, and some data may be missing for certain vendors or days when extraction failed.
 
 ```{r}
@@ -140,43 +142,85 @@ ggplot(analysis_data, aes(x = vendor)) +
 
 ```
 
+## Other dataset
+A dataset on monthly average retail prices for selected products (@canada_dataset) was identified but ultimately not utilized. The dataset only provides average prices, which limits its ability to capture price fluctuations over time. Furthermore, it lacks vendor-specific information, which is essential for analyzing the impact of different vendors on product pricing.
 
-# Model
+# Model {#sec-model}
 
-The goal of our modelling strategy is twofold. Firstly,...
+The goal of our analysis was to understand the relationship between current potato prices and influencing factors, specifically `month`, `old_price`, and `vendor`. To accomplish this, we developed a Bayesian regression model to capture the underlying dynamics that contribute to changes in pricing.
 
-Here we briefly describe the Bayesian analysis model used to investigate... Background details and diagnostics are included in [Appendix -@sec-model-details].
+Our variables of interest will be the predictor variables for the model.The Bayesian model uses the following predictors:
+
+- `month`: Represents the month during which the data was collected. The values range from June to November (i.e., months 6 to 11).
+- `old_price`: Represents the previous price of the product, providing insight into historical pricing trends. It is used to understand how past prices influence current pricing. 
+- `vendor`: Represents the specific grocery vendor selling the product. The dataset includes five vendors, including Loblaws, Metro, No Frills,Save-On-Foods and Walmart.
+
 
 ## Model set-up
 
-Define $y_i$ as the number of seconds that the plane remained aloft. Then $\beta_i$ is the wing width and $\gamma_i$ is the wing length, both measured in millimeters.  
+To predict the current price of a product, we assume a linear relationship between the outcome variable (`current_price`) and our predictor variables (`month`, `old_price`, and `vendor`). We define our model as a Bayesian regression model as follows:
 
-\begin{align} 
-y_i|\mu_i, \sigma &\sim \mbox{Normal}(\mu_i, \sigma) \\
-\mu_i &= \alpha + \beta_i + \gamma_i\\
-\alpha &\sim \mbox{Normal}(0, 2.5) \\
-\beta &\sim \mbox{Normal}(0, 2.5) \\
-\gamma &\sim \mbox{Normal}(0, 2.5) \\
-\sigma &\sim \mbox{Exponential}(1)
-\end{align}
+\begin{align*}
+  y_i &\sim \text{Normal}(\mu_i, \sigma) \\
+  \mu_i &= \beta_0 + \beta_1 \times \text{month}_i + \beta_2 \times \text{old\_price}_i + \beta_3 \times \text{vendor}_i \\
+  \beta_0 &\sim \text{Normal}(0, 2.5) \\
+  \beta_1 &\sim \text{Normal}(0, 2.5) \\
+  \beta_2 &\sim \text{Normal}(0, 2.5) \\
+  \beta_3 &\sim \text{Normal}(0, 2.5) \\
+  \sigma &\sim \text{Exponential}(1)
+\end{align*}
 
-We run the model in R [@citeR] using the `rstanarm` package of @rstanarm. We use the default priors from `rstanarm`.
+In this model, $y_i$ represents the current price for product $i$, modeled as a normal distribution with mean $\mu_i$ and standard deviation $\sigma$. The predictor variables $\text{month}_i$, $\text{old\_price}_i$, and $\text{vendor}_i$ represent the month of data collection, the old price of the product, and the vendor, respectively. The coefficients $\beta_0$, $\beta_1$, $\beta_2$, and $\beta_3$ are assigned normal priors with a mean of 0 and a standard deviation of 2.5, while $\sigma$ is assigned an exponential prior with rate 1. Choosing a relatively loose prior allows the coefficients to fluctuate within a moderate range while avoiding overly restrictive assumptions. A normal distribution with a standard deviation of 2.5 can capture most plausible true effects but avoids assigning excessively high probabilities to very large coefficients. This takes into account that the influence of predictors (such as month, old price, and vendor) on the response variable (current price) is generally limited or moderate.
+
+The Bayesian model offers advantages, such as the ability to incorporate prior information and quantify parameter uncertainty more comprehensively. We ran the model using the `rstanarm` package [@citerstanarm] in R [@citeR]. Model diagnostics, including trace plots, Rhat values, and posterior predictive checks, can be found in the Appendix (@sec-appendix).
 
 
 ### Model justification
 
-We expect a positive relationship between the size of the wings and time spent aloft. In particular...
+The multiple linear regression model, with the same predictor variables as the Bayesian model, is also suitable for this analysis. First, the model demonstrates strong explanatory power for the data, as indicated by high R-squared and adjusted R-squared values. Additionally, most predictor variables are statistically significant, allowing for a clear interpretation of their influence on `current_price`. Moreover, the conclusions about the significance of the variables are consistent between the linear and Bayesian models, reinforcing the reliability of the results. These analyses and diagnostics can also be found in the Appendix (@sec-appendix).
 
-We can use maths by including latex between dollar signs, for instance $\theta$.
-
+However, we ultimately chose the Bayesian approach for its flexibility in incorporating prior knowledge and providing a posterior distribution of the model parameters, which offers a more nuanced understanding of the uncertainty. The Bayesian model is particularly useful when dealing with smaller datasets or high variability. The cleaned data we used has only around 600 observations, which makes the Bayesian model better suited for our study compared to an ordinary least squares model.
 
 # Results
+@tbl-modelresults and @fig-credible-intervals present the results of our Bayesian regression model that explores the relationship between current price and various predictors including `month`, `old price`, and `vendor`. The parameter estimates, mean absolute deviation (MAD), and additional model metrics are summarized in @tbl-modelresults, while @fig-credible-intervals provides a graphical representation of the 90% credible intervals to facilitate understanding of the uncertainty around each summary of Coefficients
 
-Our results are summarized in @tbl-modelresults.
+The intercept is estimated at 0.31, with an MAD of 0.16, suggesting that the base value of current price (when all other predictors are at their reference levels) is positive. The coefficients for `month7`, `month8`, and `month9` are 0.08, 0.00, and 0.05 respectively, indicating minor or negligible changes in current price depending on the month, especially since the 90% credible intervals for `month8` and `month9` include zero, implying a lack of statistical significance.
+
+The predictor `old_price` has an estimated coefficient of 0.54 with an MAD of 0.02, which suggests a strong and significant positive relationship with current price. This means that a higher old price is positively associated with a higher current price, and the narrow credible interval suggests this relationship is consistent.
+
+Vendor categories also show varied impacts on current_price. For instance, `vendorMetro` has a coefficient of 0.35, while `vendorNoFrills` has a negative effect of −0.34. The strongest positive effect is observed for `vendorSaveOnFoods` with a coefficient of 2.56, while `vendorWalmart` has a negative coefficient of −1.75. The coefficient for `vendorSaveOnFoods` stands out with a high positive estimate and a narrow credible interval, suggesting a strong and reliable positive effect on current_price. Conversely, `vendorWalmart` exhibits a significantly negative effect. The credible intervals for these predictors (as shown in @fig-credible-intervals) do not include zero, which implies that these effects are statistically significant.
+
+In summary, the results suggest that old_price and vendor type are significant predictors of current_price, while certain months do not significantly impact the price.
+
+```{r}
+#| echo: false
+#| eval: true
+#| warning: false
+#| message: false
+
+first_model <-
+  readRDS(file = here::here("models/first_model.rds"))
+```
 
 
 
+```{r}
+#| echo: false
+#| eval: true
+#| warning: false
+#| message: false
+#| title: "90% Credible Intervals for Coefficient Estimates"
+#| label: fig-credible-intervals
 
+# Plot credible intervals for coefficient estimates with correct parameter names
+posterior <- as.matrix(first_model)
+color_scheme_set("darkgray")
+mcmc_intervals(posterior, pars = c("(Intercept)", "month7", "month8", "month9", "old_price", "vendorMetro", "vendorNoFrills", "vendorSaveOnFoods")) +
+  labs(title = "90% Credible Intervals for Coefficient Estimates",
+       x = "90% Credible Interval",
+       y = "Predictors")
+
+```
 
 # Discussion
 
@@ -198,8 +242,25 @@ Weaknesses and next steps should also be included.
 
 \appendix
 
-# Appendix {-}
+# Appendix {.unnumbered}
 
+# Bayesian model details {#sec-bayesia-detail}
+The Bayesian regression model summaries are shown in @tbl-modelresults.
+```{r}
+#| echo: false
+#| eval: true
+#| label: tbl-modelresults
+#| tbl-cap: "Explanatory model of current price based on month, old price, and vendor"
+#| warning: false
+
+modelsummary::modelsummary(
+  list(
+    "Bayesian regression model for current price" = first_model
+  ),
+  statistic = "mad",
+  fmt = 2
+)
+```
 
 # Additional data details
 
