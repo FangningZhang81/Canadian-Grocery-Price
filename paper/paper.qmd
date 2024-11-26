@@ -19,7 +19,11 @@ bibliography: references.bib
 #| message: false
 
 library(tidyverse)
-library(palmerpenguins)
+library(ggplot2)
+library(here)
+library(knitr)
+
+analysis_data <- read_csv(here::here("data/02-analysis_data/analysis_data.csv"))
 ```
 
 
@@ -50,64 +54,91 @@ Overview text
 
 ## Measurement
 	
-Some paragraphs about how we go from a phenomena in the world to an entry in the dataset.
+The measurement process involves transforming real-world phenomena into data that can be analyzed. In this case, the real-world phenomenon is the sale of potatoes by various vendors over time. Each transaction recorded in the raw dataset represents an instance of this phenomenon.
 
-## Outcome variables
+To transition from real-world sales events to a structured dataset, we began by recording each transaction, which included details like the product name and brand, prices, and the vendor information. This research focus on the single product-potato. Therefore, `product_name` was used to identify the specific types of potatoes (yellow and white), allowing us to focus on these items exclusively. The `current_price` and `old_price` fields represent the financial aspect of these sales, capturing both the price at the time of the transaction and the historical price for comparison.The `month` variable was derived from the transaction timestamp (`nowtime`) to provide a temporal context for analysis, allowing us to observe trends and patterns over different periods. 
 
-Add graphs, tables and text. Use sub-sub-headings for each outcome variable or update the subheading to be singular.
+By  filtering and cleaning the raw data, the dataset reflects the aspects of potato sales that are of interest for this study. This process of measurement transforms abstract sales activities into quantifiable data points that can be used for statistical analysis, providing insights into vendor behavior and price dynamics over time.
 
+## Cleaning Process
+The dataset used for this analysis comes from a combination of raw sales data and product-specific information, sourced from Project Hammer (https://jacobfilipp.com/hammer/). Project Hammer aims to drive more competition and reduce collusion in the Canadian grocery sector. The dataset, referred to as Canadian Grocery Price Data, includes sales data from eight vendors: Voila, T&T, Loblaws, No Frills, Metro, Galleria, Walmart, and Save-On-Foods. The available dates range from February 28, 2024, to the latest data load.
 
+Initially, two raw datasets were downloaded from the Project Hammer website. These datasets were merged to create a comprehensive dataset containing all relevant columns, including `nowtime`, `vendor`, `product_id`, `product_name`, `brand`, `units`, `current_price`, `old_price`, `price_per_unit`, and `other`. 
 
-Some of our data is of penguins (@fig-bills), from @palmerpenguins.
+The cleaning process involved several key steps to refine the dataset for analysis. First, we selected only the columns relevant to our study shown in @tbl-columns. The month of each transaction was extracted from the nowtime field to provide temporal context for the sales data.
 
 ```{r}
-#| label: fig-bills
-#| fig-cap: Bills of penguins
+#| label: tbl-columns
+#| tbl-cap: Summary of Selected Columns
 #| echo: false
+#| warning: false
+#| message: false
+columns <- data.frame(
+  Column = c("nowtime", "vendor", "current_price", "old_price", "product_name"),
+  Description = c(
+    "Timestamp indicating when the data was gathered",
+    "One of the 7 grocery vendors",
+    "Price at time of extract",
+    "An 'old' struck-out price, indicating a previous sale price",
+    "Product name, may include brand and units"
+  )
+)
 
-ggplot(penguins, aes(x = island, fill = species)) +
-  geom_bar(alpha = 0.8) +
-  scale_fill_manual(values = c("darkorange","purple","cyan4"),
-                    guide = "none") +
-  theme_minimal() +
-  facet_wrap(~species, ncol = 1) +
-  coord_flip()
+# Create a formatted table
+kable(columns, caption = NULL)
 ```
 
-Talk more about it.
-
-And also planes (@fig-planes). (You can change the height and width, but don't worry about doing that until you have finished every other aspect of the paper - Quarto will try to make it look nice and the defaults usually work well once you have enough text.)
+Next, we filtered the dataset to include only the products of interest—yellow and white potatoes—by searching for these keywords in the product_name column, ensuring our analysis was focused specifically on these items. Additionally, any entries with missing values (NA) were removed to maintain data quality. Finally, the nowtime column was dropped after extracting the month, as it was no longer necessary for the analysis. @tbl-cleaned-data-preview gives an preview of the cleaned dataset we will use in the following sections.
 
 ```{r}
-#| label: fig-planes
-#| fig-cap: Relationship between wing length and width
+#| label: tbl-cleaned-data-preview
+#| tbl-cap: Preview of Cleaned Data on Potato Sales
 #| echo: false
 #| warning: false
 #| message: false
 
-analysis_data <- read_csv(here::here("data/02-analysis_data/analysis_data.csv"))
-
-analysis_data |> 
-  ggplot(aes(x = width, y = length)) +
-  geom_point(alpha = 0.8) +
-  theme_minimal() +
-  labs(x = "Wing width (mm)",
-       y = "Wing length (mm)")
+# Create table displaying the first few rows of cleaned data
+kable(head(analysis_data), caption = NULL)
 ```
 
-Talk way more about it. 
+These steps resulted in a cleaned dataset containing the essential information needed for the analysis of potato sales trends.
 
-## Predictor variables
+## Outcome variables
+The cleaned dataset contains 685 rows, representing individual products sold, along with vendor information and price details. The summary statistics of the cleaned data indicate that the mean of current price is 2.811, and the mean of old price is 3.785. @fig-vendor and @tbl-analysis-data-overview show that the cleaned dataset only contains five vendors instead of the eight in the raw dataset, and the month is from June to November. This is expected because data collection from February 28 to July 10/11 focused on a smaller set of products by the description of the raw dataset. After July, more products were added, and some data may be missing for certain vendors or days when extraction failed.
 
-Add graphs, tables and text.
+```{r}
+#| label: tbl-analysis-data-overview
+#| tbl-cap: Overview of Analysis Data
+#| echo: false
+#| warning: false
+#| message: false
 
-Use sub-sub-headings for each outcome variable and feel free to combine a few into one if they go together naturally.
+# Create summary statistics for numerical columns only
+numerical_columns <- analysis_data %>% select(current_price, old_price, month)
+summary_output <- summary(numerical_columns)
+
+# Print the summary as a formatted table
+kable(summary_output, caption = NULL)
+```
 
 
+```{r}
+#| label: fig-vendor
+#| fig-cap: "Total Number of Products by Vendor"
+#| echo: false
+#| warning: false
+#| message: false
 
+# Plot code
+ggplot(analysis_data, aes(x = vendor)) +
+  geom_bar(fill = "grey") +
+  labs(
+    x = "Vendor",
+    y = "Total Products"
+  ) +
+  theme_minimal()
 
-
-
+```
 
 
 # Model
@@ -143,33 +174,6 @@ We can use maths by including latex between dollar signs, for instance $\theta$.
 
 Our results are summarized in @tbl-modelresults.
 
-```{r}
-#| echo: false
-#| eval: true
-#| warning: false
-#| message: false
-
-library(rstanarm)
-
-first_model <-
-  readRDS(file = here::here("models/first_model.rds"))
-```
-
-```{r}
-#| echo: false
-#| eval: true
-#| label: tbl-modelresults
-#| tbl-cap: "Explanatory models of flight time based on wing width and wing length"
-#| warning: false
-
-modelsummary::modelsummary(
-  list(
-    "First model" = first_model
-  ),
-  statistic = "mad",
-  fmt = 2
-)
-```
 
 
 
@@ -207,48 +211,12 @@ In @fig-ppcheckandposteriorvsprior-1 we implement a posterior predictive check. 
 
 In @fig-ppcheckandposteriorvsprior-2 we compare the posterior with the prior. This shows... 
 
-```{r}
-#| eval: true
-#| echo: false
-#| message: false
-#| warning: false
-#| label: fig-ppcheckandposteriorvsprior
-#| layout-ncol: 2
-#| fig-cap: "Examining how the model fits, and is affected by, the data"
-#| fig-subcap: ["Posterior prediction check", "Comparing the posterior with the prior"]
-
-pp_check(first_model) +
-  theme_classic() +
-  theme(legend.position = "bottom")
-
-posterior_vs_prior(first_model) +
-  theme_minimal() +
-  scale_color_brewer(palette = "Set1") +
-  theme(legend.position = "bottom") +
-  coord_flip()
-```
 
 ## Diagnostics
 
 @fig-stanareyouokay-1 is a trace plot. It shows... This suggests...
 
 @fig-stanareyouokay-2 is a Rhat plot. It shows... This suggests...
-
-```{r}
-#| echo: false
-#| eval: true
-#| message: false
-#| warning: false
-#| label: fig-stanareyouokay
-#| fig-cap: "Checking the convergence of the MCMC algorithm"
-#| fig-subcap: ["Trace plot", "Rhat plot"]
-#| layout-ncol: 2
-
-plot(first_model, "trace")
-
-plot(first_model, "rhat")
-```
-
 
 
 \newpage
