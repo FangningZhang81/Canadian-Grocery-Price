@@ -1,11 +1,11 @@
 #### Preamble ####
-# Purpose: Models... [...UPDATE THIS...]
-# Author: Rohan Alexander [...UPDATE THIS...]
-# Date: 11 February 2023 [...UPDATE THIS...]
-# Contact: rohan.alexander@utoronto.ca [...UPDATE THIS...]
+# Purpose: Building Models to Analyzing Factors Affecting the Potato Prices
+# Author: Fangning Zhang
+# Date: 23 November 2024
+# Contact: fangning.zhang@mail.utoronto.ca
 # License: MIT
-# Pre-requisites: [...UPDATE THIS...]
-# Any other information needed? [...UPDATE THIS...]
+# Pre-requisites: 02-analysis_data saved and loaded
+# Any other information needed? None
 
 
 #### Workspace setup ####
@@ -13,10 +13,11 @@ library(tidyverse)
 library(rstanarm)
 library(readr)  # For reading CSV files
 library(broom)  # For summarizing and tidying models
+library(arrow)
 
 #### Read data ####
 # Load data from your CSV file
-analysis_data <- read_csv("data/02-analysis_data/analysis_data.csv")
+analysis_data <- read_parquet(here::here("data/02-analysis_data/analysis_data.parquet"))
 
 #### Convert month and vendor to factor ####
 analysis_data <- analysis_data %>%

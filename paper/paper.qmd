@@ -1,12 +1,12 @@
 ---
-title: "Analyzing the Factors Influencing the Price of Potatoes in Canadian Grocery Markets"
-subtitle: "Vendor, Historical Pricing, and Sales Month Affect the Current Potato Prices by Using the Bayesian Modeling Approach"
+title: "Analyzing Factors Affecting the Potato Prices in Canadian Grocery Markets"
+subtitle: "Vendor Type, Historical Pricing, and Sales Month Play Key Roles in Determining Potato Prices through Bayesian Analysis"
 author: 
   - Fangning zhang
 thanks: "Code and data are available at: [https://github.com/FangningZhang81/Canadian-Grocery-Price](https://github.com/FangningZhang81/Canadian-Grocery-Price)"
 date: today
 date-format: long
-abstract: "First sentence. Second sentence. Third sentence. Fourth sentence."
+abstract: "In this study, we analyze the factors influencing potato prices in Canadian grocery markets by employing Bayesian regression modeling. The analysis focuses on how variables such as vendor type, historical pricing, and the sales month affect current pricing trends for yellow and white potatoes. Our findings indicate that vendor type and historical pricing significantly impact potato prices, with distinct variations based on sales month. These insights enhance our understanding of potato pricing dynamics, offering valuable information to consumers, retailers, and policymakers."
 format:
   pdf:
     toc: true
@@ -27,8 +27,9 @@ library(dplyr)
 library(rstanarm)
 library(bayesplot)
 library(patchwork)
+library(arrow)
 
-analysis_data <- read_csv(here::here("data/02-analysis_data/analysis_data.csv"))
+analysis_data <- read_parquet(here::here("data/02-analysis_data/analysis_data.parquet"))
 ```
 
 
@@ -38,11 +39,11 @@ The potato is one of the most widely consumed vegetables globally, serving as a 
 
 In this paper, to investigate the factors influencing the current price of potatoes in Canadian grocery markets, we analyzed data Canadian grocery price data[@citeData] from June 2024 to November 2024 cross various grocery chains, including, Loblaws, Metro, NoFrills, SaveOnFoods and Walmart. Our estimand is the influence of these factors on the current prices of potatoes, taking into account variations between vendors, old prices, and the month of sale.
 
-The results from the Bayesian model indicate that all three factors—vendor, old pricing, and sales month—significantly influence the current price of potatoes. Old price plays a key role on the current price, with previous prices strongly influencing the current price. The results also show that higher-priced potatoes have greater price fluctuations, while lower-priced potatoes have little difference between the current and old prices. Vendors also influence the current price a lot, with some vendors showing consistently higher or lower prices than others.Seasonal variations, as reflected in the sales month, have a more moderate but still important impact, with potato prices generally increasing during certain months, likely due to heightened demand.
+The results from the Bayesian model indicate that all three factors—vendor, old pricing, and sales month—significantly influence the current price of potatoes. Old price plays a key role on the current price, with previous prices strongly influencing the current price. The results also show that higher-priced potatoes have greater price fluctuations, while lower-priced potatoes have little difference between the current and old prices. Vendors influence the current price a lot, with some vendors showing consistently higher or lower prices than others. Seasonal variations, as reflected in the sales month, have a more moderate but still important impact, with potato prices generally increasing during certain months.
 
 Understanding the factors driving fluctuations in potato prices is essential for producers, consumers, and retailers. For consumers, particularly low-income households, awareness of pricing trends aids in budgeting and making informed purchasing decisions. When the price increases, consumers may shift to alternative staple foods or frozen potato products. Retailers can use these insights to optimize pricing strategies and inventory management. Furthermore, policymakers and agricultural producers can also benefit from the findings, as they are crucial for the market dynamics and potato supply chain.
 
-The remainder of this paper is structured as follows. @sec-data provides an overview of the dataset used in the analysis, measurement relating to the dataset, cleaning data process and some details about variables of interest. @sec-model contains the Bayesian regression model used to analyze the factors influencing the current price. @sec-result contains data result visualizations and also the results of the Bayesian regression model. @sec-discussion 
+The remainder of this paper is structured as follows. @sec-data provides an overview of the dataset used in the analysis, measurement relating to the dataset, cleaning data process and some details about variables of interest. @sec-model contains the Bayesian regression model used to analyze the factors influencing the current price. @sec-result contains data result visualizations and also the results of the Bayesian regression model. @sec-discussion discusses what was done, implications, limitations and next steps. @sec-appendix includes more details for the models and also an appendix where we focused on some aspect of surveys, sampling and observational data.
 
 In this project, We used the R programming language[@citeR] and several R packages for data processing, analysis, and visualization. Specifically, tidyverse[@citeTidyverse], arrow[@citeArrow], dplyr[@citeDplyr], tidyr[@citeTidyr], janitor[@citeJanitor], rstanarm[@citerstanarm], and here[@citeHere] were used for data processing, cleaning, date and time operations, project path management, and efficient data storage and reading. knitr[@citeKnitr], patchwork[@citePatchwork], bayesplot[@citeBayesplot] and ggplot2[@citeGgplot2] were used for creating dynamic reports, beautifying table outputs, data visualization, and arranging multiple charts. testthat[@citeTestthat] was used for writing and executing unit tests. styler[@citeStyler] is used for final code formatting.
 
@@ -405,7 +406,7 @@ Using some advanced modeling techniques could enhance model accuracy. Exploring 
 
 \appendix
 
-# Appendix {.unnumbered}
+# Appendix {.unnumbered} {#sec-appendix}
 # Linear model details {#sec-linear-detail}
 ```{r}
 #| echo: false

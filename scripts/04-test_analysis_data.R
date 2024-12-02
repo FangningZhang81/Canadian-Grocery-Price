@@ -1,21 +1,22 @@
 #### Preamble ####
-# Purpose: Tests... [...UPDATE THIS...]
-# Author: Rohan Alexander [...UPDATE THIS...]
-# Date: 26 September 2024 [...UPDATE THIS...]
-# Contact: rohan.alexander@utoronto.ca [...UPDATE THIS...]
+# Purpose: Tests on the analysis data
+# Author: Fangning Zhang
+# Date: 23 November 2024
+# Contact: fangning.zhang@mail.utoronto.ca
 # License: MIT
-# Pre-requisites: [...UPDATE THIS...]
-# Any other information needed? [...UPDATE THIS...]
+# Pre-requisites: 02-analysis_data saved and loaded
+# Any other information needed? None
 
 
 #### Workspace setup ####
 library(tidyverse)
 library(testthat)
 library(here)
+library(arrow)
 
 
 # Load cleaned_data (replace the path as needed)
-cleaned_data <- read_csv(here::here("data/02-analysis_data/analysis_data.csv"))
+cleaned_data <- read_parquet(here::here("data/02-analysis_data/analysis_data.parquet"))
 
 # Test that the dataset has 685 rows
 test_that("dataset has 685 rows", {

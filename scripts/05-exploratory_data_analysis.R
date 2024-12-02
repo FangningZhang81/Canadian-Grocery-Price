@@ -1,19 +1,21 @@
 #### Preamble ####
-# Purpose: Models... [...UPDATE THIS...]
-# Author: Rohan Alexander [...UPDATE THIS...]
-# Date: 11 February 2023 [...UPDATE THIS...]
-# Contact: rohan.alexander@utoronto.ca [...UPDATE THIS...]
+# Purpose: Explore the analysis data and find representitive values
+# Author: Fangning Zhang
+# Date: 23 November 2024
+# Contact: fangning.zhang@mail.utoronto.ca
 # License: MIT
-# Pre-requisites: [...UPDATE THIS...]
-# Any other information needed? [...UPDATE THIS...]
+# Pre-requisites: 02-analysis_data saved and loaded
+# Any other information needed? None
 
 
 #### Workspace setup ####
 library(ggplot2)
 library(dplyr)
+library(here)
+library(arrow)
 
 # Load analysis data
-analysis_data <- read_csv("data/02-analysis_data/analysis_data.csv")
+analysis_data <- read_parquet(here::here("data/02-analysis_data/analysis_data.parquet"))
 
 # Distribution of current_price by vendor
 ggplot(analysis_data, aes(x = vendor, y = current_price)) +
@@ -88,3 +90,4 @@ analysis_data %>%
     size = "Frequency"
   ) +
   theme_minimal()
+

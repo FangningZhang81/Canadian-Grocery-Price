@@ -1,11 +1,11 @@
 #### Preamble ####
-# Purpose: Cleans the raw plane data recorded by two observers..... [...UPDATE THIS...]
-# Author: Rohan Alexander [...UPDATE THIS...]
-# Date: 6 April 2023 [...UPDATE THIS...]
-# Contact: rohan.alexander@utoronto.ca [...UPDATE THIS...]
+# Purpose: Cleans the raw plane data recorded by PROJECT HAMMER
+# Author: Fangning Zhang
+# Date: 23 November 2024
+# Contact: fangning.zhang@mail.utoronto.ca
 # License: MIT
-# Pre-requisites: [...UPDATE THIS...]
-# Any other information needed? [...UPDATE THIS...]
+# Pre-requisites: downloaded the data
+# Any other information needed? none
 
 #### Workspace setup ####
 library(tidyverse)
@@ -14,8 +14,8 @@ library(janitor)
 library(lubridate)
 
 #### Clean data ####
-raw_data <- read_csv("~/Desktop/hammer-4-raw.csv")
-product_data <- read_csv("~/Desktop/hammer-4-product.csv")
+raw_data <- read_csv("data/01-raw_data/hammer-5-csv/hammer-4-raw.csv")
+product_data <- read_csv("data/01-raw_data/hammer-5-csv/hammer-4-product.csv")
 
 joined_data <- raw_data %>%
   inner_join(product_data, by = c("product_id" = "id")) %>%
@@ -43,5 +43,5 @@ cleaned_data <- joined_data %>%
   tidyr::drop_na()
 
 #### Save data ####
-write_csv(x = cleaned_data, file = "data/02-analysis_data/analysis_data.csv")
+write_parquet(cleaned_data, "data/02-analysis_data/analysis_data.parquet")
 

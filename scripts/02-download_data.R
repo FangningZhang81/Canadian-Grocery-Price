@@ -9,18 +9,17 @@
 
 
 #### Workspace setup ####
-library(opendatatoronto)
 library(tidyverse)
-# [...UPDATE THIS...]
 
 #### Download data ####
-# [...ADD CODE HERE TO DOWNLOAD...]
+# Define the download link and the destination path for saving the ZIP file
+download_link <- "https://jacobfilipp.com/hammerdata/hammer-5-csv.zip"  # Direct download link
+save_path <- "data/01-raw_data/hammer-5-csv.zip"  # Path to save the downloaded file
+
+# Download the ZIP file from the specified link in binary mode
+download.file(download_link, destfile = save_path, mode = "wb")  # Download file in binary mode
 
 
-
-#### Save data ####
-# [...UPDATE THIS...]
-# change the_raw_data to whatever name you assigned when you downloaded it.
-write_csv(the_raw_data, "inputs/data/raw_data.csv") 
-
+# After the ZIP file is downloaded, navigate to "01-raw_data" to locate the file and click on it. 
+# A decompressed folder will appear containing two CSV files.
          
