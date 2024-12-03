@@ -43,7 +43,7 @@ The results from the Bayesian model indicate that all three factors—vendor, ol
 
 Understanding the factors driving fluctuations in potato prices is essential for producers, consumers, and retailers. For consumers, particularly low-income households, awareness of pricing trends aids in budgeting and making informed purchasing decisions. When the price increases, consumers may shift to alternative staple foods or frozen potato products. Retailers can use these insights to optimize pricing strategies and inventory management. Furthermore, policymakers and agricultural producers can also benefit from the findings, as they are crucial for the market dynamics and potato supply chain.
 
-The remainder of this paper is structured as follows. @sec-data provides an overview of the dataset used in the analysis, measurement relating to the dataset, cleaning data process and some details about variables of interest. @sec-model contains the Bayesian regression model used to analyze the factors influencing the current price. @sec-result contains data result visualizations and also the results of the Bayesian regression model. @sec-discussion discusses what was done, implications, limitations and next steps. @sec-appendix includes more details for the models and also an appendix where we focused on some aspect of surveys, sampling and observational data.
+The remainder of this paper is structured as follows. @sec-data provides an overview of the dataset used in the analysis, measurement relating to the dataset, cleaning data process and some details about variables of interest. @sec-model contains the Bayesian regression model used to analyze the factors influencing the current price. @sec-result contains data result visualizations and also the results of the Bayesian regression model. @sec-discussion discusses what was done, implications, limitations and next steps. In the appendix, @sec-linear-detail and @sec-bayesian-detail includes more details for the models and @sec-survey we focused on some aspect of surveys, sampling and observational data.
 
 In this project, We used the R programming language[@citeR] and several R packages for data processing, analysis, and visualization. Specifically, tidyverse[@citeTidyverse], arrow[@citeArrow], dplyr[@citeDplyr], tidyr[@citeTidyr], janitor[@citeJanitor], rstanarm[@citerstanarm], and here[@citeHere] were used for data processing, cleaning, date and time operations, project path management, and efficient data storage and reading. knitr[@citeKnitr], patchwork[@citePatchwork], bayesplot[@citeBayesplot] and ggplot2[@citeGgplot2] were used for creating dynamic reports, beautifying table outputs, data visualization, and arranging multiple charts. testthat[@citeTestthat] was used for writing and executing unit tests. styler[@citeStyler] is used for final code formatting.
 
@@ -60,9 +60,9 @@ The dataset used in this paper was downloaded on November 22, 2024; data release
 
 ## Measurement
 	
-The measurement process involves transforming real-world phenomena into data that can be analyzed. The price of potatoes fluctuates over time, influenced by a variety of factors such as vendor pricing strategies, seasonality, historical price trends, yield fluctuations, and shifts in consumer demand. These fluctuations influence purchasing decisions of consumers, pricing strategies of retailers and also the decisions for policymakers and agricultural producers. To understand these fluctuations, it is essential to quantify the factors that influence them. 
+The price of potatoes fluctuates over time, influenced by a variety of factors such as vendor pricing strategies, seasonality, historical price trends, yield fluctuations, and shifts in consumer demand. These fluctuations influence purchasing decisions of consumers, pricing strategies of retailers and also the decisions for policymakers and agricultural producers. To understand these fluctuations, it is essential to quantify the factors that influence them. 
 
-To transition from real-world sales events to a structured dataset, we began by recording each transaction. The information of each product was recorded as a row in the raw dataset, which included details like the product name and brand, prices, and the vendor information. This research focus on the single product-potato. Therefore, `product_name` was used to identify the specific types of potatoes (yellow and white), allowing us to focus on these items exclusively. The `current_price` and `old_price` fields represent the financial aspect of these sales, capturing both the price at the time of the transaction and the historical price for comparison.The `month` variable was derived from the transaction timestamp (`nowtime`) to provide a temporal context for analysis, allowing us to observe trends and patterns over different periods. 
+To transition from real-world sales events to a structured dataset, we began by recording each transaction. The information of each product was recorded as a row in the raw dataset, which included details like the product name and brand, prices, and the vendor information. This research focuses on a single product: potatoes. Therefore, `product_name` was used to identify the specific types of potatoes (yellow and white), allowing us to focus on these items exclusively. The `current_price` and `old_price` fields represent the financial aspect of these sales, capturing both the price at the time of the transaction and the historical price for comparison.The `month` variable was derived from the transaction timestamp (`nowtime`) to provide a temporal context for analysis, allowing us to observe trends and patterns over different periods. 
 
 By filtering and cleaning the raw data, the dataset reflects the aspects of potato sales that are of interest for this study. This process of measurement transforms abstract sales activities into quantifiable data points that can be used for statistical analysis, providing insights into vendor behavior and price dynamics over time.
 
@@ -92,7 +92,7 @@ columns <- data.frame(
 kable(columns, caption = NULL)
 ```
 
-Next, we filtered the dataset to include only the products of interest (yellow and white potatoes) by searching for these keywords in the `product_name` column, ensuring our analysis was focused specifically on these items. Additionally, any entries with missing values (NA) were removed to maintain data quality. Finally, the nowtime column was dropped after extracting the month, as it was no longer necessary for the analysis. @tbl-cleaned-data-preview gives an preview of the cleaned dataset we will use in the following sections.
+Next, we filtered the dataset to include only the products of interest (yellow and white potatoes) by searching for these keywords in the `product_name` column, ensuring our analysis was focused specifically on these items. Additionally, any entries with missing values (NA) were removed to maintain data quality. Finally, the `nowtime` column was dropped after extracting the month, as it was no longer necessary for the analysis. @tbl-cleaned-data-preview gives an preview of the cleaned dataset we will use in the following sections.
 
 ```{r}
 #| label: tbl-cleaned-data-preview
@@ -108,7 +108,7 @@ kable(head(analysis_data), caption = NULL)
 These steps resulted in a cleaned dataset containing the essential information needed for the analysis of potato sales trends.
 
 ## Variables of Interest
-The cleaned dataset contains 685 rows, representing individual products sale, along with vendor information and price details. The summary statistics of the cleaned data indicate that the mean of current price is 2.811, and the mean of old price is 3.785. @fig-vendor and @tbl-analysis-data-overview show that the cleaned dataset only contains five vendors instead of the eight in the raw dataset, and the month is from June to November. This is expected because data collection from February 28 to July 10 focused on a smaller set of products by the description of the raw dataset. After July, more products were added, and some data may be missing for certain vendors or days when extraction failed.
+The cleaned dataset contains 685 rows, representing individual products sale, along with vendor information and price details. The summary statistics of the cleaned data indicate that the mean of current price is 2.811, and the mean of old price is 3.785. In @fig-vendor, the first plot shows a positive linear relationship between old and current potato prices, while the second and third plots indicate how vendor type and month influence average current prices, respectively, with significant price variations between different vendors and months. @fig-vendor and @tbl-analysis-data-overview show that the cleaned dataset only contains five vendors instead of the eight in the raw dataset, and the month is from June to November. This is expected because data collection from February 28 to July 10 focused on a smaller set of products by the description of the raw dataset. After July, more products were added, and some data may be missing for certain vendors or days when extraction failed.
 
 ```{r}
 #| label: tbl-analysis-data-overview
@@ -175,7 +175,7 @@ A dataset on monthly average retail prices for selected products [@canada_datase
 
 The goal of our analysis was to understand the relationship between current potato prices and influencing factors, specifically `month`, `old_price`, and `vendor`. To accomplish this, we developed a Bayesian regression model to capture the underlying dynamics that contribute to changes in pricing.
 
-Our variables of interest will be the predictor variables for the model.The Bayesian model uses the following predictors:
+Our variables of interest will be the predictor variables for the model. The Bayesian model uses the following predictors:
 
 - `month`: Represents the month during which the data was collected. The values range from June to November (i.e., months 6 to 11).
 - `old_price`: Represents the previous price of the product, providing insight into historical pricing trends. It is used to understand how past prices influence current pricing. 
@@ -201,19 +201,19 @@ In this model, $y_i$ represents the current price for product $i$, modeled as a 
 The Bayesian model offers advantages, such as the ability to incorporate prior information and quantify parameter uncertainty more comprehensively. We ran the model using the `rstanarm` package [@citerstanarm] in R [@citeR]. Model diagnostics, including trace plots, Rhat values, and posterior predictive checks, can be found in the Appendix (@sec-bayesian-detail).
 
 
-## Model justification
+## Model Justification
 
-The multiple linear regression model, with the same predictor variables as the Bayesian model, is also suitable for this analysis. First, the model demonstrates strong explanatory power for the data, as indicated by high R-squared and adjusted R-squared values. Additionally, most predictor variables are statistically significant, allowing for a clear interpretation of their influence on `current_price`. Moreover, the conclusions about the significance of the variables are consistent between the linear and Bayesian models, reinforcing the reliability of the results. These analyses and diagnostics can also be found in the Appendix (@sec-linear-detail).
+The multiple linear regression model using Ordinary Least Squares, with the same predictor variables as the Bayesian model, was also considered as an alternative during the model-building process. It exhibited strong explanatory power, as reflected by high R-squared and adjusted R-squared values, and most predictor variables were statistically significant, enabling a clear interpretation of their effects on `current_price`. Furthermore, the conclusions about the significance of the variables were consistent between the linear regression and Bayesian models, enhancing the reliability of the findings. Details of the linear regression model can be found in the Appendix (@sec-linear-detail).
 
-However, we ultimately chose the Bayesian approach for its flexibility in incorporating prior knowledge and providing a posterior distribution of the model parameters, which offers a more nuanced understanding of the uncertainty. The Bayesian model is particularly useful when dealing with smaller datasets or high variability. The cleaned data we used has only around 600 observations, which makes the Bayesian model better suited for our study compared to an ordinary least squares model.
+However, despite its strengths in simplicity and computational efficiency, the linear regression model has limitations in quantifying parameter uncertainty and incorporating prior knowledge. In contrast, the Bayesian model offers greater flexibility by integrating prior distributions and providing posterior distributions for parameters, which better capture the uncertainty and variability in the data. Given that the cleaned dataset contains only around 700 observations, the Bayesian approach is more robust and suitable for handling smaller datasets and scenarios with potential noise or variability. These considerations ultimately led to the selection of the Bayesian model, relying on Markov Chain Monte Carlo (MCMC) sampling for estimation, for this analysis.
 
-The model has some underlying assumptions, potential limitations, and situations where the model may not be appropriate. The model assumes a linear relationship between the predictors and the target variable. If the relationship is non-linear, the model may yield biased results without additional interaction terms. Furthermore, the model assumes that the residuals, which represent the differences between observed and predicted prices, follow a normal distribution and have constant variance. Any deviations from this assumption can lead to inaccurate inferences, such as changes in variance over time or among vendors. The model also assumes that observations are independent, which may not always be true in practice, as pricing data can exhibit temporal dependencies (such as trends or seasonality) or spatial correlations (such as vendor location effects) that are not accounted for. The model assumes the effect of a vendor is constant across time and products. This might oversimplify the dynamics of vendor-specific pricing strategies. More limitations are discussed in the @sec-third-point.
+The model has certain underlying assumptions, potential limitations, and scenarios in which it may not be appropriate. The model assumes a linear relationship between the predictors and the target variable. If the relationship is non-linear, the model may yield biased results without additional interaction terms. Furthermore, the model assumes that the residuals, which represent the differences between observed and predicted prices, follow a normal distribution and have constant variance. Any deviations from this assumption can lead to inaccurate inferences, such as changes in variance over time or among vendors. The model also assumes that observations are independent, which may not always be true in practice, as pricing data can exhibit temporal dependencies (such as trends or seasonality) or spatial correlations (such as vendor location effects) that are not accounted for. The model assumes the effect of a vendor is constant across time and products. This might oversimplify the dynamics of vendor-specific pricing strategies. More limitations are discussed in the @sec-third-point.
 
 # Results {#sec-result}
 In this section, we visualized our data through graphs and tables as well as present the results from our model.
 
 ## Data Results
-@fig-price illustrates the distribution of old and current prices of potatoes, with point sizes indicating the frequency of occurrence. A red dashed line represents where the old and current prices are equal (i.e., the line x = y). Almost all points fall below the x = y line, which suggests that, for many instances, the current price of potatoes is lower than their old price. This implies a general decrease in the price of potatoes over time for a significant portion of the data. Additionally, points representing lower prices are closer to the red line, indicating minimal changes between old and new prices for lower-priced potatoes. The new prices of lower-priced potatoes are similar to the old prices.
+@fig-price illustrates the distribution of old and current prices of potatoes, with point sizes indicating the frequency of occurrence. A red dashed line represents where the old and current prices are equal (i.e., the line x = y). All points fall below the x = y line, which suggests that the current price of potatoes is lower than their old price. This observation aligns with expectations, as only discounted products have an "old price."  Additionally, points representing lower prices are closer to the red line, indicating minimal changes between old and new prices for lower-priced potatoes. The new prices of lower-priced potatoes are similar to the old prices.
 
 The size of each point reflects the frequency of a particular combination of old and current prices. Larger points are seen at lower price values, particularly where old prices are around 2.5, suggesting that lower prices occurred more frequently.
 ```{r}
@@ -238,7 +238,7 @@ analysis_data %>%
   theme_minimal()
 ```
 
-@fig-product-number shows the trend of total products, while @fig-price-distribution illustrates the box plots of current and old prices across different months. The total number of products is closely related to the price range and volatility during this period. As shown in @fig-product-number, the total number of products starts increasing in September, reaches its peak in October, and then slightly declines in November. From June to August, both current and old prices remained relatively stable, with minimal variability and a few outliers. From September onward, both prices exhibited significant fluctuations, with increased median values and widened price ranges, along with noticeable outliers. In October, the median values reached their highest point, followed by a decrease in November, but overall variability remained substantial.
+@fig-product-number shows the trend of total products, while @fig-price-distribution illustrates the box plots of current and old prices across different months. The total number of products is closely related to the price range and fluctuations during each period. As shown in @fig-product-number, the total number of products starts increasing in September, reaches its peak in October, and then slightly declines in November. From June to August, both current and old prices remained relatively stable, with minimal variability and a few outliers. From September onward, both prices exhibited significant fluctuations, with increased median values and widened price ranges, along with noticeable outliers. In October, the median values reached their highest point, followed by a decrease in November, but overall variability remained substantial.
 
 ```{r}
 #| label: fig-product-number
@@ -329,16 +329,16 @@ p2 <- analysis_data %>%
 # Arrange the two plots side by side using patchwork
 p1 + p2
 ```
-In summary,the analysis indicates that current potato prices are generally lower than old prices, particularly for lower-priced potatoes, as shown in @fig-price. @fig-product-number and @fig-price-distribution show a rise in the number of products from September to October, along with increased price variability. Average prices differ significantly among vendors, with "SaveOnFoods" having the highest prices, while "Metro," "NoFrills," and "Walmart" are relatively lower, as illustrated in @fig-price-vendor.
+In summary, the analysis indicates that current potato prices are lower than old prices, with smaller differences observed for lower-priced potatoes, as shown in @fig-price. @fig-product-number and @fig-price-distribution show a rise in the number of products from September to October, along with increased price variability. Average prices differ significantly among vendors, with "SaveOnFoods" having the highest prices, while "Metro," "NoFrills," and "Walmart" are relatively lower, as illustrated in @fig-price-vendor.
 
 ## Model Results
-@tbl-modelresults and @fig-credible-intervals present the results of our Bayesian regression model that explores the relationship between current price and various predictors including `month`, `old price`, and `vendor`. The parameter estimates, mean absolute deviation (MAD), and additional model metrics are summarized in @tbl-modelresults, while @fig-credible-intervals provides a graphical representation of the 90% credible intervals to facilitate understanding of the uncertainty around each summary of Coefficients
+@tbl-modelresults and @fig-credible-intervals present the results of our Bayesian regression model that explores the relationship between current price and various predictors including `month`, `old price`, and `vendor`. The parameter estimates, calculated using the mean of the posterior distributions, along with mean absolute deviation (MAD) and additional model metrics are summarized in @tbl-modelresults, while @fig-credible-intervals provides a graphical representation of the 90% credible intervals to facilitate understanding of the uncertainty around each summary of Coefficients
 
 The intercept is estimated at 0.31, with an MAD of 0.16, suggesting that the base value of current price (when all other predictors are at their reference levels) is positive. The coefficients for `month7`, `month8`, and `month9` are 0.08, 0.00, and 0.05 respectively, indicating minor or negligible changes in current price depending on the month, especially since the 90% credible intervals for `month8` and `month9` include zero, implying a lack of statistical significance.
 
 The predictor `old_price` has an estimated coefficient of 0.54 with an MAD of 0.02, which suggests a strong and significant positive relationship with current price. This means that a higher old price is positively associated with a higher current price, and the narrow credible interval suggests this relationship is consistent.
 
-Vendor categories also show varied impacts on current_price. For instance, `vendorMetro` has a coefficient of 0.35, while `vendorNoFrills` has a negative effect of −0.34. The strongest positive effect is observed for `vendorSaveOnFoods` with a coefficient of 2.56, while `vendorWalmart` has a negative coefficient of −1.75. The coefficient for `vendorSaveOnFoods` stands out with a high positive estimate and a narrow credible interval, suggesting a strong and reliable positive effect on current_price. Conversely, `vendorWalmart` exhibits a significantly negative effect. The credible intervals for these predictors (as shown in @fig-credible-intervals) do not include zero, which implies that these effects are statistically significant.
+Vendor categories also show varied impacts on `current_price`. For instance, `vendorMetro` has a coefficient of 0.35, while `vendorNoFrills` has a negative effect of −0.34. The strongest positive effect is observed for `vendorSaveOnFoods` with a coefficient of 2.56, while `vendorWalmart` has a negative coefficient of −1.75. The coefficient for `vendorSaveOnFoods` stands out with a high positive estimate and a narrow credible interval, suggesting a strong and reliable positive effect on `current_price`. Conversely, `vendorWalmart` exhibits a significantly negative effect. The credible intervals for these predictors (as shown in @fig-credible-intervals) do not include zero, which implies that these effects are statistically significant.
 
 In summary, the results suggest that `old_price` and `vendor` type are significant predictors of `current_price`, while certain months do not significantly impact the price.
 
@@ -365,7 +365,7 @@ first_model <-
 # Plot credible intervals for coefficient estimates with parameter names
 posterior <- as.matrix(first_model)
 color_scheme_set("darkgray")
-mcmc_intervals(posterior, pars = c("(Intercept)", "month7", "month8", "month9", "old_price", "vendorMetro", "vendorNoFrills", "vendorSaveOnFoods")) +
+mcmc_intervals(posterior, pars = c("(Intercept)", "month7", "month8", "month9", "old_price", "vendorMetro", "vendorNoFrills", "vendorSaveOnFoods"), prob = 0.9, point_est = "mean") +
   labs(title = "90% Credible Intervals for Coefficient Estimates",
        x = "90% Credible Interval",
        y = "Predictors")
@@ -392,11 +392,13 @@ The study's primary limitation is its reliance on a relatively small clean datas
 
 Additionally, during the cleaning the variable `old_price`, products without an old price were filtered out, meaning that non-discounted products were excluded from the analysis. This exclusion limits the ability to fully understand the factors that influence the current price of all potatoes, as it only focuses on products with a discount history.
 
+Another key limitation is the scope of the potato types analyzed. The study focuses only on yellow and white potatoes, which limits its ability to accurately reflect the pricing dynamics of potatoes more broadly. However, a broader classification of "potatoes" would include diverse products such as processed potato items, which could compromise the analysis' accuracy in this dataset.
+
 Furthermore, the dataset lacks important variables such as transportation costs, potato quality, regional market differences, and consumer preferences, which could play significant roles in determining potato prices. The absence of these variables may lead to an incomplete understanding of the pricing dynamics.
 
 ## Next Steps
 
-To address the identified limitations and enhance the reliability of the analysis, future research should enhance several key areas. Firstly, expanding the dataset is crucial. Collecting data from more vendors over an extended period of several years. Including all four seasons will allow better accounting of temporal trends and seasonality that affect pricing behaviors. Including data on non-discounted products will also enable a more comprehensive analysis of price dynamics of all kinds of potatoes.
+To address the identified limitations and enhance the reliability of the analysis, future research should enhance several key areas. Firstly, expanding the dataset is crucial. Collecting data from more vendors over an extended period of several years. Including all four seasons will allow better accounting of temporal trends and seasonality that affect pricing behaviors. Including data on non-discounted products will enable a more comprehensive analysis of price dynamics of all kinds of potatoes. Besides, future research could benefit from a more sophisticated classification system to better capture the pricing dynamics of a wider variety of potato types while maintaining analytical rigor.
 
 Incorporating additional predictors into the model could provide a more comprehensive understanding of the factors influencing potato prices.  Potential variables include transportation costs, quality grades of potatoes, regional market differences, and consumer preferences. These additions would help mitigate the current model's oversimplification and provide a more complete view of the factors driving pricing decisions. However, removing insignificant variables, such as some months, could enhance model simplicity.
 
@@ -406,7 +408,7 @@ Using some advanced modeling techniques could enhance model accuracy. Exploring 
 
 \appendix
 
-# Appendix {.unnumbered} {#sec-appendix}
+# Appendix {.unnumbered}
 # Linear model details {#sec-linear-detail}
 ```{r}
 #| echo: false
@@ -459,6 +461,7 @@ modelsummary::modelsummary(
 ```
 
 # Bayesian model details {#sec-bayesian-detail}
+<!-- with the assistance of ChatGPT -->
 The Bayesian regression model summaries are shown in @tbl-modelresults.
 ```{r}
 #| echo: false
@@ -490,16 +493,13 @@ pp_check(first_model) +
   theme(legend.position = "bottom")
 ```
 
-In @fig-ppcheck we implement a posterior predictive check. This shows...
-
-In @fig-ppcheckandposteriorvsprior-2 we compare the posterior with the prior. This shows... 
-
+In @fig-ppcheck we implement a posterior predictive check. The close alignment between the observed and predictive distributions suggests that the model captures the data distribution well, though slight deviations may indicate areas for refinement.
 
 ## Diagnostics
 
-@fig-traceplot is a trace plot. It shows... This suggests...
+@fig-traceplot is a trace plot. It shows the sampling paths of four MCMC chains for each parameter in the model. The chains appear to mix well and remain stationary, suggesting good convergence and no obvious issues with sampling.
 
-@fig-rhat is a Rhat plot. It shows... This suggests...
+@fig-rhat is a Rhat plot. It shows that all parameters have Rhat values close to 1, indicating good convergence across the MCMC chains. There is no evidence of non-convergence or poor mixing for any of the parameters in the model.
 ```{r}
 #| echo: false
 #| eval: true
@@ -531,6 +531,7 @@ plot(first_model, "trace") + theme_minimal()  +
 
 plot(first_model, "rhat") + theme_minimal()
 ```
+@fig-posteriorvsprior compares the posterior distributions (left) with the prior distributions (right) for each parameter in the model. The posterior estimates differ significantly from the priors, indicating that the data provides substantial information to update the model parameters.
 
 ```{r}
 #| eval: true
@@ -546,11 +547,49 @@ posterior_vs_prior(first_model) +
   coord_flip()
 
 ```
+# Enhancing Observational Data with Survey and Sampling Methods {#sec-survey}
+<!-- with the assistance of ChatGPT -->
+In this appendix, we explore how the research question addressed in this paper could be enhanced by integrating survey and sampling methodologies with the observational data used. By utilizing these methods, we could gain a more nuanced understanding of how one variable directly influences another which is causal relationships and overcome some of the limitations inherent in observational data.
 
-## Code styling 
-Code written in the scripts was checked and styled with lintr [@citelintr] and styler [@citestyler]. 
+## Observational Data Limitations and the Role of Surveys
+Observational data provides insights into correlations but often falls short when it comes to establishing causal relationships. For instance, in the context of evaluating how certain factors influence potato prices in Canada, there may be confounding variables, such as changes in weather or policies that affect both supply and pricing. These variables can introduce biases, making it challenging to isolate the effect of individual predictors on potato pricing. This is where an augmented survey approach could be beneficial.
 
+To address these limitations, we could design a survey targeted at stakeholders in the potato supply chain, such as farmers, vendors, and consumers. The survey would include questions designed to capture key qualitative factors that might be influencing price variations but are not easily captured in the existing observational data. For example, we could ask farmers about their perceptions of cost trends for inputs like fertilizer or transportation, and vendors about their experiences with consumer demand during certain periods.
 
+## Designing the Hypothetical Survey and Sampling Approach
+The proposed survey would utilize stratified random sampling to ensure representation across different segments of the potato supply chain. Stratification variables might include the geographical region, scale of operation (e.g., small vs. large farms), and type of vendor (e.g., grocery chain vs. farmers' market). By segmenting the sample in this way, we can reduce sampling error and ensure that we are capturing variability across different contexts within the supply chain.
+
+Additionally, we would aim for a sample size that is statistically powered to detect meaningful differences between strata, such as variations in production costs, market challenges, or consumer demand trends across different geographical regions or scales of operation. This would involve using simulation methods to estimate the minimum required sample size for key analyses. Simulations could also be used to explore the potential impact of nonresponse bias. By running simulations under different nonresponse scenarios, we could better understand how such bias might affect our results and design appropriate weighting adjustments to compensate.
+
+## Survey Details
+
+The survey would contain the following sections:
+
+1. **Introduction**: An overview of the purpose of the survey, how the information collected will be used, and contact details for questions or concerns.
+2. **General Information**: Questions about the respondent's role in the supply chain, including their type of business (e.g., farmer, vendor) and the scale of their operation.
+   - What is your role in the potato supply chain? (e.g., farmer, vendor)
+   - How large is your operation? (e.g., small farm, large farm, grocery chain)
+3. **Production Costs**: Specific questions for farmers regarding costs of inputs such as fertilizer, labor, and transportation.
+   - What are your average monthly costs for fertilizer?
+   - How have labor costs changed for your farm in the past year?
+   - What are the main challenges you face regarding transportation costs?
+4. **Demand and Sales Trends**: Questions for vendors about consumer demand trends, challenges faced, and perceived influences on pricing.
+   - How would you describe consumer demand for potatoes over the past six months? (e.g., increasing, stable, decreasing)
+   - What factors do you think have influenced consumer demand recently?
+   - Have you faced any challenges in maintaining stock levels? If so, what were they?
+5. **Market Challenges**: Open-ended questions allowing respondents to provide qualitative insights into challenges they are experiencing in the market.
+   - What are the biggest challenges you are currently facing in the potato market?
+   - Are there any specific external factors (e.g., weather, government policies) that have impacted your business?
+6. **Concluding Section**: A thank-you message and information about how respondents can access the survey results if they are interested.
+   - Thank you for your time and valuable insights. If you are interested in receiving a summary of the survey results, please provide your contact information below.
+
+## Linking Survey Data to Observational Data
+The survey data would be linked with the observational dataset using key identifiers, such as the vendor or farm ID. This linkage would allow us to augment the existing dataset with new variables derived from the survey responses. For example, the inclusion of self-reported data on production costs or perceived consumer preferences would provide additional context to our analysis of potato pricing trends.
+
+The augmented dataset would then be used in a series of regression models to assess whether the new variables improve model fit or explain additional variance in potato prices. Specifically, we could explore interaction effects between observed variables (e.g., monthly average price) and survey-derived variables (e.g., self-reported demand trends) to determine whether changes in specific factors, such as demand trends or production costs, have a direct impact on pricing. This approach helps establish causal links between influencing factors and price changes, rather than merely identifying correlations.
+
+## Simulation and Validation
+To validate our survey approach and ensure robustness, we could conduct simulations to assess the reliability of survey-based estimates. This might involve generating synthetic datasets under different assumptions about survey response distributions and comparing the results to those from the observational data alone. Such simulations can provide insight into how survey augmentation could enhance causal inference. Additionally, we could use cross-validation techniques to test the predictive performance of models augmented with survey data, or conduct sensitivity analyses to understand how changes in key assumptions or survey responses affect the final results. We can also compare survey-derived estimates with existing benchmarks or known external data sources to evaluate their accuracy and consistency.
 
 \newpage
 
