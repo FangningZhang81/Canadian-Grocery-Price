@@ -1,30 +1,22 @@
-# Starter folder
+# Analyzing Factors Affecting Potato Prices in Canadian Grocery Markets
 
 ## Overview
 
-This repo provides students with a foundation for their own projects associated with *Telling Stories with Data*. You do not need every aspect for every paper and you should delete aspects that you do not need.
+This repository contains the code and data used to analyze the factors influencing potato prices in Canadian grocery markets. The analysis focuses on vendor type, historical pricing, and sales month, employing Bayesian regression modeling to determine the impact of these factors on the pricing trends of yellow and white potatoes. This study aims to enhance our understanding of the dynamics of potato pricing and provide valuable insights to consumers, retailers, and policymakers.
 
 
 ## File Structure
 
-The repo is structured as:
+The repository is structured as follows:
 
--   `data/raw_data` contains the raw data as obtained from X.
--   `data/analysis_data` contains the cleaned dataset that was constructed.
--   `model` contains fitted models. 
--   `other` contains relevant literature, details about LLM chat interactions, and sketches.
--   `paper` contains the files used to generate the paper, including the Quarto document and reference bibliography file, as well as the PDF of the paper. 
--   `scripts` contains the R scripts used to simulate, download and clean data.
+- **data/raw_data**: Due to the large size of the raw dataset, it is not included in the repository. It can be downloaded using the script available in `scripts/02-download_data`.
+- **data/analysis_data**: Includes the cleaned datasets that were used in the analysis.
+- **model**: Stores the Bayesian models used in the study. Also includes an API for accessing the models.
+- **paper**: Consists of files used to generate the paper, including the Quarto document, the PDF of the paper, and the reference bibliography file.
+- **scripts**: Contains the R scripts used to download, clean data, and build the Bayesian models.
+- **other**: Contains other supplementary files.
 
 
 ## Statement on LLM usage
 
-Aspects of the code were written with the help of the auto-complete tool, Codriver. The abstract and introduction were written with the help of ChatHorse and the entire chat history is available in inputs/llms/usage.txt.
-
-## Some checks
-
-- [ ] Change the rproj file name so that it's not starter_folder.Rproj
-- [ ] Change the README title so that it's not Starter folder
-- [ ] Remove files that you're not using
-- [ ] Update comments in R scripts
-- [ ] Remove this checklist
+The paper includes some content created with the assistance of ChatGPT, such as the surveys, sampling, and observational data appendix and model diagnostics. The entire interaction history with ChatGPT is available in other/llmusage.txt. Comments indicating the use of ChatGPT are included in the parts of the code that were written using the assistance of ChatGPT.
