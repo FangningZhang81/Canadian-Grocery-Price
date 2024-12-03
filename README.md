@@ -9,7 +9,7 @@ This repository contains the code and data used to analyze the factors influenci
 
 The repository is structured as follows:
 
-- **data/raw_data**: Due to the large size of the raw dataset, it is not included in the repository. It can be downloaded using the script available in `scripts/02-download_data`.
+- **data/raw_data**: Due to the raw dataset is too large, it is not included in the repository. It can be downloaded using the script available in `scripts/02-download_data`.
 - **data/analysis_data**: Includes the cleaned datasets that were used in the analysis.
 - **model**: Stores the Bayesian models used in the study. Also includes an API for accessing the models.
 - **paper**: Consists of files used to generate the paper, including the Quarto document, the PDF of the paper, and the reference bibliography file.
