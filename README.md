@@ -19,4 +19,4 @@ The repository is structured as follows:
 
 ## Statement on LLM usage
 
-The paper includes some content created with the assistance of ChatGPT, such as the surveys, sampling, and observational data appendix and model diagnostics. The entire interaction history with ChatGPT is available in other/llmusage.txt. Comments indicating the use of ChatGPT are included in the parts of the code that were written using the assistance of ChatGPT.
+The paper includes some content created with the assistance of ChatGPT, such as the surveys, sampling, and observational data appendix and model diagnostics. The entire interaction history with ChatGPT is available in other/llmusage.txt. Comments indicating the use of ChatGPT are included in the paper.
